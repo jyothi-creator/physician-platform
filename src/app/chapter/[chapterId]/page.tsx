@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
@@ -12,6 +14,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import LayoutShell from "@/components/LayoutShell";
 
 type Chapter = {
   id: string;
@@ -34,48 +37,47 @@ export default function ChapterPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!chapterId) return;
+    if (!chapterId) {
+      setLoading(false);
+      return;
+    }
 
     const unsub = onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
-
-      // 1️⃣ Load chapters (same as TOC)
-      const chapterQuery = query(
-        collection(db, "chapters"),
-        orderBy("order")
-      );
-
-      const chapterSnap = await getDocs(chapterQuery);
-      const chapters: Chapter[] = chapterSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<Chapter, "id">),
-      }));
-
-      const found = chapters.find((c) => c.id === chapterId);
-
-      if (!found) {
+      if (!user) {
         setLoading(false);
         return;
       }
 
-      setChapter(found);
+      try {
+        const chapterRef = doc(db, "chapters", chapterId);
+        const chapterSnap = await getDoc(chapterRef);
 
-      // 2️⃣ Load subchapters
-      const subQuery = query(
-        collection(db, "subchapters"),
-        where("chapterId", "==", chapterId),
-        orderBy("order")
-      );
+        if (!chapterSnap.exists()) {
+          setChapter(null);
+          return;
+        }
 
-      const subSnap = await getDocs(subQuery);
-      setSubchapters(
-        subSnap.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as Omit<Subchapter, "id">),
-        }))
-      );
+        setChapter({
+          id: chapterSnap.id,
+          ...(chapterSnap.data() as Omit<Chapter, "id">),
+        });
 
-      setLoading(false);
+        const subQuery = query(
+          collection(db, "subchapters"),
+          where("chapterId", "==", chapterId),
+          orderBy("order")
+        );
+
+        const subSnap = await getDocs(subQuery);
+        setSubchapters(
+          subSnap.docs.map((doc) => ({
+            id: doc.id,
+            ...(doc.data() as Omit<Subchapter, "id">),
+          }))
+        );
+      } finally {
+        setLoading(false);
+      }
     });
 
     return () => unsub();
@@ -90,9 +92,10 @@ export default function ChapterPage() {
   }
 
   return (
-    <div className="space-y-20">
-      <header className="space-y-6 max-w-3xl">
-        <h1 className="text-4xl font-semibold leading-tight">
+    <LayoutShell>
+      {/* Chapter header */}
+      <header className="space-y-3 max-w-3xl">
+        <h1 className="text-3xl font-semibold leading-tight text-zinc-900">
           {chapter.title}
         </h1>
 
@@ -103,27 +106,40 @@ export default function ChapterPage() {
         )}
       </header>
 
-      <section className="space-y-8">
-        <h2 className="text-2xl font-semibold">Sections</h2>
+      {/* Sections */}
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold mb-6 text-zinc-900">
+          Sections
+        </h2>
 
-        <ol className="space-y-5">
-          {subchapters.map((sub) => (
-            <li key={sub.id}>
-              <Link
-                href={`/subchapter/${sub.id}`}
-                className="group flex gap-4"
-              >
-                <span className="text-zinc-400 text-base font-medium">
-                  {sub.order}
-                </span>
-                <span className="text-lg group-hover:underline underline-offset-4">
-                  {sub.title}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ol>
+        {subchapters.length === 0 ? (
+          <div className="rounded-lg bg-white border border-zinc-200 p-6 max-w-3xl">
+            <p className="text-sm text-zinc-600 leading-relaxed">
+              Sections for this chapter are in development and will appear here as they are released.
+            </p>
+          </div>
+        ) : (
+          <ol className="space-y-4">
+            {subchapters.map((sub) => (
+              <li key={sub.id}>
+                <Link
+                  href={`/subchapter/${sub.id}`}
+                  className="flex items-center gap-4 rounded-lg bg-white px-5 py-4
+                             border border-zinc-200 hover:border-zinc-300
+                             hover:shadow-sm transition"
+                >
+                  <span className="text-sm font-medium text-zinc-400 w-6">
+                    {sub.order}
+                  </span>
+                  <span className="text-base font-medium text-zinc-900">
+                    {sub.title}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
-    </div>
+    </LayoutShell>
   );
 }

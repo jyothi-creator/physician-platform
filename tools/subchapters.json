@@ -1,0 +1,65 @@
+[
+  {
+    "chapterId": "ch1",
+    "order": 1,
+    "title": "What Burnout Is — and Is Not",
+    "published": true
+  },
+  {
+    "chapterId": "ch1",
+    "order": 2,
+    "title": "Why Naming the Problem Matters",
+    "published": true
+  },
+  {
+    "chapterId": "ch1",
+    "order": 3,
+    "title": "Individual Distress vs Systemic Failure",
+    "published": true
+  },
+
+  {
+    "chapterId": "ch2",
+    "order": 1,
+    "title": "Women as Change Agents in Medicine",
+    "published": true
+  },
+  {
+    "chapterId": "ch2",
+    "order": 2,
+    "title": "Invisible Labor and Informal Leadership",
+    "published": true
+  },
+  {
+    "chapterId": "ch2",
+    "order": 3,
+    "title": "Why Influence Is Often Undervalued",
+    "published": false
+  },
+
+  {
+    "chapterId": "ch3",
+    "order": 1,
+    "title": "How Systems Shape Behavior",
+    "published": true
+  },
+  {
+    "chapterId": "ch3",
+    "order": 2,
+    "title": "Policies, Metrics, and Misalignment",
+    "published": false
+  },
+
+  {
+    "chapterId": "ch4",
+    "order": 1,
+    "title": "The Historical Structure of Medicine",
+    "published": true
+  },
+  {
+    "chapterId": "ch4",
+    "order": 2,
+    "title": "Who the System Was Built For",
+    "published": false
+  }
+]

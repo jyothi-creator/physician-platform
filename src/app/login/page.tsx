@@ -5,6 +5,7 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import LayoutShell from "@/components/LayoutShell";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -22,9 +23,8 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[#f7f5f2] text-zinc-900">
-
       {/* =========================
-          TOP HERO STRIP (BRIGHT, SUN VISIBLE)
+          TOP HERO STRIP (FULL BLEED)
          ========================= */}
       <section className="relative h-[185px] md:h-[200px] w-full overflow-hidden">
         <Image
@@ -44,11 +44,10 @@ export default function LoginPage() {
       </section>
 
       {/* =========================
-          MAIN CONTENT (FULL, ABOVE FOLD)
+          MAIN CONTENT (USES LAYOUT SHELL)
          ========================= */}
-      <section className="max-w-6xl mx-auto px-3 pt-6 pb-7">
+      <LayoutShell>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-
           {/* ---------- LEFT: Editorial ---------- */}
           <div className="max-w-lg">
             <h1 className="text-xl font-semibold leading-tight mb-3">
@@ -61,7 +60,8 @@ export default function LoginPage() {
 
             <p className="text-sm text-zinc-700 leading-relaxed">
               Designed to support professional fulfillment and long-term practice
-through shared insight and systems-level accountability, without the personal toll.
+              through shared insight and systems-level accountability, without the
+              personal toll.
             </p>
           </div>
 
@@ -103,9 +103,8 @@ through shared insight and systems-level accountability, without the personal to
               </p>
             </div>
           </div>
-
         </div>
-      </section>
+      </LayoutShell>
     </main>
   );
 }
