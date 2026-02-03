@@ -21,70 +21,91 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="space-y-20">
-      {/* ===== HERO / MISSION ===== */}
-      <section className="space-y-8">
-        <h1 className="text-4xl font-semibold leading-tight max-w-3xl">
-          From Burnout to Balance
-        </h1>
+    <main className="min-h-screen bg-[#f7f5f2] text-zinc-900">
 
-        <p className="text-xl text-zinc-700 max-w-3xl">
-          A private, physician-only knowledge platform supporting the sustained
-          well-being, professional fulfillment, and retention of women
-          physicians—through clarity, agency, and systems-level accountability.
-        </p>
-
-        <div className="relative w-full h-[320px] rounded-xl overflow-hidden">
-          <Image
-            src="/images/hero-window.jpg"
-            alt="Quiet natural light through a window"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-
-        <p className="text-zinc-600 max-w-3xl">
-          Burnout among women physicians is not an individual failing. It is a
-          predictable outcome of structural, cultural, and institutional
-          conditions within medicine. This platform exists to examine those
-          realities clearly—and to support meaningful change at individual,
-          leadership, and institutional levels.
-        </p>
+      {/* =========================
+          TOP HERO STRIP (BRIGHT, SUN VISIBLE)
+         ========================= */}
+      <section className="relative h-[185px] md:h-[200px] w-full overflow-hidden">
+        <Image
+          src="/hero_forestsun.jpg"
+          alt=""
+          fill
+          priority
+          className="object-cover"
+          style={{ objectPosition: "center 25%" }}
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-r
+            from-[#fffdf8]/45
+            via-[#f2efe7]/30
+            to-[#fffaf2]/40"
+        />
       </section>
 
-      {/* ===== LOGIN / ACCESS ===== */}
-      <section className="max-w-md border border-zinc-200 rounded-xl p-8 bg-white">
-        <h2 className="text-2xl font-semibold mb-6">Private Access</h2>
+      {/* =========================
+          MAIN CONTENT (FULL, ABOVE FOLD)
+         ========================= */}
+      <section className="max-w-6xl mx-auto px-3 pt-6 pb-7">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
 
-        <div className="space-y-4">
-          <input
-            className="w-full border border-zinc-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-400"
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          {/* ---------- LEFT: Editorial ---------- */}
+          <div className="max-w-lg">
+            <h1 className="text-xl font-semibold leading-tight mb-3">
+              A Place to Practice Medicine with Clarity
+            </h1>
 
-          <input
-            className="w-full border border-zinc-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-400"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+            <p className="text-base mb-2">
+              A private knowledge platform for women physicians.
+            </p>
 
-          <button
-            onClick={handleLogin}
-            className="w-full bg-zinc-900 text-white py-3 rounded-md hover:bg-zinc-800 transition"
-          >
-            Sign in
-          </button>
+            <p className="text-sm text-zinc-700 leading-relaxed">
+              Designed to support professional fulfillment and long-term practice
+through shared insight and systems-level accountability, without the personal toll.
+            </p>
+          </div>
+
+          {/* ---------- RIGHT: Login ---------- */}
+          <div className="flex justify-center lg:justify-end">
+            <div className="w-full max-w-md bg-white/85 backdrop-blur-sm p-7 rounded-xl shadow-sm">
+              <h2 className="text-base font-semibold tracking-tight mb-4">
+                Private Access
+              </h2>
+
+              <input
+                type="email"
+                placeholder="Email"
+                className="w-full mb-3 p-3 border border-zinc-300 rounded-md
+                           focus:outline-none focus:ring-2 focus:ring-[#2f3a44]"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                className="w-full mb-5 p-3 border border-zinc-300 rounded-md
+                           focus:outline-none focus:ring-2 focus:ring-[#2f3a44]"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+
+              <button
+                onClick={handleLogin}
+                className="w-full py-3 bg-[#2f3a44] hover:bg-[#1f2933]
+                           text-white rounded-md transition"
+              >
+                Sign in
+              </button>
+
+              <p className="text-xs text-zinc-600 mt-3">
+                Access is limited to physicians and invited contributors.
+              </p>
+            </div>
+          </div>
+
         </div>
-
-        <p className="text-sm text-zinc-500 mt-6">
-          Access is limited to physicians and invited contributors.
-        </p>
       </section>
-    </div>
+    </main>
   );
 }
