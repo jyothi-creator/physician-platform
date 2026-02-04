@@ -35,6 +35,7 @@ export default function ChapterPage() {
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [subchapters, setSubchapters] = useState<Subchapter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sectionsOpen, setSectionsOpen] = useState(false);
 
   useEffect(() => {
     if (!chapterId) {
@@ -49,6 +50,7 @@ export default function ChapterPage() {
       }
 
       try {
+        // Load chapter
         const chapterRef = doc(db, "chapters", chapterId);
         const chapterSnap = await getDoc(chapterRef);
 
@@ -62,6 +64,7 @@ export default function ChapterPage() {
           ...(chapterSnap.data() as Omit<Chapter, "id">),
         });
 
+        // Load subchapters
         const subQuery = query(
           collection(db, "subchapters"),
           where("chapterId", "==", chapterId),
@@ -93,8 +96,10 @@ export default function ChapterPage() {
 
   return (
     <LayoutShell>
-      {/* Chapter header */}
-      <header className="space-y-3 max-w-3xl">
+      {/* =====================
+          CHAPTER HEADER
+         ===================== */}
+      <header className="max-w-3xl space-y-4">
         <h1 className="text-3xl font-semibold leading-tight text-zinc-900">
           {chapter.title}
         </h1>
@@ -106,40 +111,112 @@ export default function ChapterPage() {
         )}
       </header>
 
-      {/* Sections */}
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold mb-6 text-zinc-900">
-          Sections
-        </h2>
+      {/* =====================
+          SECTIONS CONTROL
+         ===================== */}
+      {/* =====================
+    SECTIONS CONTROL
+   ===================== */}
+<div className="mt-10 mb-6 relative">
+  <button
+    onClick={() => setSectionsOpen((v) => !v)}
+    className="
+      inline-flex items-center gap-3
+      text-2xl font-semibold text-zinc-900
+      px-4 py-2
+      rounded-lg
+      bg-white
+      border border-zinc-300
+      shadow-sm
+      hover:bg-zinc-50
+      transition
+    "
+  >
+    Sections
+    <span
+      className={`text-base transition-transform ${
+        sectionsOpen ? "rotate-180" : ""
+      }`}
+    >
+      ▾
+    </span>
+  </button>
 
-        {subchapters.length === 0 ? (
-          <div className="rounded-lg bg-white border border-zinc-200 p-6 max-w-3xl">
-            <p className="text-sm text-zinc-600 leading-relaxed">
-              Sections for this chapter are in development and will appear here as they are released.
-            </p>
-          </div>
-        ) : (
-          <ol className="space-y-4">
-            {subchapters.map((sub) => (
-              <li key={sub.id}>
-                <Link
-                  href={`/subchapter/${sub.id}`}
-                  className="flex items-center gap-4 rounded-lg bg-white px-5 py-4
-                             border border-zinc-200 hover:border-zinc-300
-                             hover:shadow-sm transition"
-                >
-                  <span className="text-sm font-medium text-zinc-400 w-6">
-                    {sub.order}
-                  </span>
-                  <span className="text-base font-medium text-zinc-900">
-                    {sub.title}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
+  {/* DROPDOWN */}
+  {sectionsOpen && subchapters.length > 0 && (
+    <div
+      className="
+        absolute left-0 mt-2 w-[28rem]
+        bg-white
+        border border-zinc-200
+        rounded-lg
+        shadow-lg
+        z-20
+      "
+    >
+      <ol className="py-2">
+        {subchapters.map((sub) => (
+          <li key={sub.id}>
+            <Link
+              href={`/subchapter/${sub.id}`}
+              onClick={() => setSectionsOpen(false)}
+              className="
+                flex gap-4 px-4 py-2
+                text-sm text-zinc-700
+                hover:bg-zinc-50
+                hover:text-zinc-900
+              "
+            >
+              <span className="text-zinc-400 w-5">
+                {sub.order}
+              </span>
+              <span>{sub.title}</span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )}
+</div>
+
+
+      {/* =====================
+          SECTIONS LIST
+         ===================== */}
+      {subchapters.length === 0 ? (
+        <div className="rounded-lg bg-white border border-zinc-200 p-6 max-w-3xl">
+          <p className="text-sm text-zinc-600 leading-relaxed">
+            Sections for this chapter are in development and will appear here as
+            they are released.
+          </p>
+        </div>
+      ) : (
+        <ol className="space-y-4">
+          {subchapters.map((sub) => (
+            <li key={sub.id}>
+              <Link
+                href={`/subchapter/${sub.id}`}
+                className="
+                  flex items-center gap-4
+                  rounded-lg bg-white
+                  px-5 py-4
+                  border border-zinc-200
+                  hover:border-zinc-300
+                  hover:shadow-sm
+                  transition
+                "
+              >
+                <span className="text-sm font-medium text-zinc-400 w-6">
+                  {sub.order}
+                </span>
+                <span className="text-base font-medium text-zinc-900">
+                  {sub.title}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      )}
     </LayoutShell>
   );
 }
