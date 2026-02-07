@@ -28,7 +28,7 @@ export default function LoginPage() {
          ========================= */}
       <section className="relative h-[185px] md:h-[200px] w-full overflow-hidden">
         <Image
-          src="/hero_forestsun.jpg"
+          src="/hero_forestsun1.jpg"
           alt=""
           fill
           priority
