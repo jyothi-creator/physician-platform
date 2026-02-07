@@ -14,7 +14,7 @@ import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 /* ======================================================
-   Context to prevent duplicate shell rendering
+   Prevent duplicate shell rendering
    ====================================================== */
 const LayoutShellContext = createContext<boolean>(false);
 
@@ -26,11 +26,7 @@ type Chapter = {
 
 export default function LayoutShell({ children }: { children: ReactNode }) {
   const shellAlreadyMounted = useContext(LayoutShellContext);
-
-  // 🚫 If shell already exists higher in the tree, render ONLY content
-  if (shellAlreadyMounted) {
-    return <>{children}</>;
-  }
+  if (shellAlreadyMounted) return <>{children}</>;
 
   const pathname = usePathname() ?? "";
 
@@ -39,9 +35,9 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [chapterMenuOpen, setChapterMenuOpen] = useState(false);
 
-  // ----------------------------
-  // Auth state
-  // ----------------------------
+  /* =======================
+     Auth state (ENTRY GATE)
+     ======================= */
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       setIsAuthed(!!user);
@@ -50,40 +46,34 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
     return () => unsub();
   }, []);
 
-  // ----------------------------
-  // Load chapters (auth only)
-  // ----------------------------
+  /* =======================
+     Load chapters (PUBLIC)
+     ======================= */
   useEffect(() => {
-  const load = async () => {
-    const q = query(collection(db, "chapters"), orderBy("order"));
-    const snap = await getDocs(q);
-    setChapters(
-      snap.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<Chapter, "id">),
-      }))
-    );
-  };
+    const load = async () => {
+      const q = query(collection(db, "chapters"), orderBy("order"));
+      const snap = await getDocs(q);
+      setChapters(
+        snap.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<Chapter, "id">),
+        }))
+      );
+    };
 
-  load();
-}, []);
+    load();
+  }, []);
 
-
-  // Prevent hydration / auth flash
   if (!authChecked) return null;
 
   const showTopNav = pathname !== "/login";
   const showReadCTA = pathname === "/";
+
   const showSectionNav =
-    isAuthed &&
     pathname !== "/login" &&
     (pathname === "/toc" ||
       pathname.startsWith("/chapter") ||
       pathname.startsWith("/subchapter"));
-
-  const currentChapterTitle =
-    chapters.find((c) => pathname.startsWith(`/chapter/${c.id}`))?.title ??
-    "Table of Contents";
 
   return (
     <LayoutShellContext.Provider value={true}>
@@ -128,20 +118,20 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
         {showSectionNav && (
           <div className="w-full bg-[#0f172a] text-white relative z-50">
             <div className="max-w-7xl mx-auto px-8 py-3 flex items-center justify-between">
-              {/* Left */}
               <span className="text-xs uppercase tracking-widest text-white/60">
                 Chapter
               </span>
 
-              {/* Center */}
               <div className="relative">
                 <button
-                  onClick={() =>
-                    setChapterMenuOpen((open) => !open)
-                  }
-                  className="flex items-center gap-2 text-lg font-semibold hover:opacity-90"
+                  onClick={() => setChapterMenuOpen((v) => !v)}
+                  className="flex items-center gap-2 text-lg font-semibold"
                 >
-                  <span>{currentChapterTitle}</span>
+                  <span>
+                    {chapters.find((c) =>
+                      pathname.startsWith(`/chapter/${c.id}`)
+                    )?.title ?? "Table of Contents"}
+                  </span>
                   <span className="text-sm">▾</span>
                 </button>
 
@@ -161,13 +151,7 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
                           key={chapter.id}
                           href={`/chapter/${chapter.id}`}
                           onClick={() => setChapterMenuOpen(false)}
-                          className={`block px-4 py-2 text-sm hover:bg-zinc-100 ${
-                            pathname.startsWith(
-                              `/chapter/${chapter.id}`
-                            )
-                              ? "font-medium text-black"
-                              : "text-zinc-700"
-                          }`}
+                          className="block px-4 py-2 text-sm hover:bg-zinc-100"
                         >
                           {chapter.title}
                         </Link>
@@ -177,7 +161,6 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
                 )}
               </div>
 
-              {/* Right spacer */}
               <div className="w-24" />
             </div>
           </div>
