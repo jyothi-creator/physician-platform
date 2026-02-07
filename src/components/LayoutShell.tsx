@@ -50,21 +50,33 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
      Load chapters (PUBLIC)
      ======================= */
   useEffect(() => {
-    const load = async () => {
-      const q = query(collection(db, "chapters"), orderBy("order"));
-      const snap = await getDocs(q);
-      setChapters(
-        snap.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as Omit<Chapter, "id">),
-        }))
-      );
-    };
+  // 🚫 Never load Firestore on login page
+  if (!isAuthed || pathname === "/login") return;
 
-    load();
-  }, []);
+  const load = async () => {
+    const q = query(collection(db, "chapters"), orderBy("order"));
+    const snap = await getDocs(q);
+    setChapters(
+      snap.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Chapter, "id">),
+      }))
+    );
+  };
+
+  load();
+}, [isAuthed, pathname]);
+
 
   if (!authChecked) return null;
+  // 🔐 Force login as entry point
+  if (!isAuthed && pathname !== "/login") {
+    if (typeof window !== "undefined") {
+     window.location.href = "/login";
+   }
+   return null;
+ }
+
 
   const showTopNav = pathname !== "/login";
   const showReadCTA = pathname === "/";

@@ -15,7 +15,7 @@ export default function LoginPage() {
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/toc");
+      router.push("/");
     } catch {
       alert("Login failed. Please check your credentials.");
     }
