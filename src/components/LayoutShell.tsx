@@ -54,21 +54,20 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
   // Load chapters (auth only)
   // ----------------------------
   useEffect(() => {
-    if (!isAuthed) return;
+  const load = async () => {
+    const q = query(collection(db, "chapters"), orderBy("order"));
+    const snap = await getDocs(q);
+    setChapters(
+      snap.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Chapter, "id">),
+      }))
+    );
+  };
 
-    const load = async () => {
-      const q = query(collection(db, "chapters"), orderBy("order"));
-      const snap = await getDocs(q);
-      setChapters(
-        snap.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as Omit<Chapter, "id">),
-        }))
-      );
-    };
+  load();
+}, []);
 
-    load();
-  }, [isAuthed]);
 
   // Prevent hydration / auth flash
   if (!authChecked) return null;
