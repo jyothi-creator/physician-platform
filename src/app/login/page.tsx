@@ -2,109 +2,116 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import LayoutShell from "@/components/LayoutShell";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const router = useRouter();
 
   const handleLogin = async () => {
+    setError(null);
+    setMessage(null);
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/");
     } catch {
-      alert("Login failed. Please check your credentials.");
+      setError("Login failed. Please check your credentials.");
+    }
+  };
+
+  const handleReset = async () => {
+    setError(null);
+    setMessage(null);
+
+    if (!email) {
+      setError("Please enter your email address to reset your password.");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMessage("Password reset email has been sent.");
+    } catch {
+      setError("Unable to send reset email.");
     }
   };
 
   return (
-    <main className="min-h-screen bg-[#f7f5f2] text-zinc-900">
-      {/* =========================
-          TOP HERO STRIP (FULL BLEED)
-         ========================= */}
-      <section className="relative h-[185px] md:h-[200px] w-full overflow-hidden">
-        <Image
-          src="/hero_forestsun1.jpg"
-          alt=""
-          fill
-          priority
-          className="object-cover"
-          style={{ objectPosition: "center 25%" }}
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-r
-            from-[#fffdf8]/45
-            via-[#f2efe7]/30
-            to-[#fffaf2]/40"
-        />
-      </section>
+    <main className="relative h-screen w-screen overflow-hidden">
 
-      {/* =========================
-          MAIN CONTENT (USES LAYOUT SHELL)
-         ========================= */}
-      <LayoutShell>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          {/* ---------- LEFT: Editorial ---------- */}
-          <div className="max-w-lg">
-            <h1 className="text-xl font-semibold leading-tight mb-3">
-              A Place to Practice Medicine with Clarity
-            </h1>
+      <Image
+        src="/login_premium1.jpg"
+        alt="Editorial abstract background"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center"
+      />
 
-            <p className="text-base mb-2">
-              A private knowledge platform for women physicians.
-            </p>
+      <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-black/30" />
 
-            <p className="text-sm text-zinc-700 leading-relaxed">
-              Designed to support professional fulfillment and long-term practice
-              through shared insight and systems-level accountability, without the
-              personal toll.
-            </p>
-          </div>
+      <div className="relative z-10 flex h-full items-center justify-end px-6 md:px-16">
+        <div className="w-full max-w-md bg-white/95 backdrop-blur-md p-10 rounded-2xl shadow-2xl text-zinc-900">
 
-          {/* ---------- RIGHT: Login ---------- */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="w-full max-w-md bg-white/85 backdrop-blur-sm p-7 rounded-xl shadow-sm">
-              <h2 className="text-base font-semibold tracking-tight mb-4">
-                Private Access
-              </h2>
+          <h2 className="text-xl font-semibold mb-8 tracking-tight">
+            Private Access
+          </h2>
 
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full mb-3 p-3 border border-zinc-300 rounded-md
-                           focus:outline-none focus:ring-2 focus:ring-[#2f3a44]"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full mb-4 p-3 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2f3a44]"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full mb-5 p-3 border border-zinc-300 rounded-md
-                           focus:outline-none focus:ring-2 focus:ring-[#2f3a44]"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full mb-5 p-3 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2f3a44]"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-              <button
-                onClick={handleLogin}
-                className="w-full py-3 bg-[#2f3a44] hover:bg-[#1f2933]
-                           text-white rounded-md transition"
-              >
-                Sign in
-              </button>
+          <button
+            onClick={handleLogin}
+            className="w-full py-3 bg-[#2f3a44] hover:bg-black text-white rounded-md transition"
+          >
+            Sign in
+          </button>
 
-              <p className="text-xs text-zinc-600 mt-3">
-                Access is limited to physicians and invited contributors.
-              </p>
-            </div>
-          </div>
+          <button
+            onClick={handleReset}
+            className="mt-4 text-sm text-zinc-600 hover:text-black transition"
+          >
+            Forgot password?
+          </button>
+
+          {/* Inline feedback */}
+          {error && (
+            <p className="mt-4 text-sm text-red-600">{error}</p>
+          )}
+
+          {message && (
+            <p className="mt-4 text-sm text-green-600">{message}</p>
+          )}
+
+          <p className="text-xs text-zinc-500 mt-6 leading-relaxed">
+            Access is limited to physicians and invited contributors.
+          </p>
+
         </div>
-      </LayoutShell>
+      </div>
     </main>
   );
 }
